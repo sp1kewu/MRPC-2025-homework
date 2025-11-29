@@ -3,12 +3,11 @@ import pandas as pd
 import math
 import matplotlib.pyplot as plt
 
-# === 参数：按题目要求自行替换 ===
 omega = 0.5           #  rad/s
-alpha_deg = 90    # 角度
+alpha_deg = 180/12    # 角度
 alpha = math.radians(alpha_deg)
 
-# === 工具函数 ===
+# 工具函数
 def quat_to_rotmat(x, y, z, w):
     """四元数 -> 旋转矩阵, 输入需为 (x, y, z, w)"""
     n = x*x + y*y + z*z + w*w
@@ -75,8 +74,8 @@ def R_BD(t, omega, alpha):
         [0.,  sa,      ca    ]
     ])
 
-# === 读取 tracking.csv ===
-df = pd.read_csv("documents\\tracking.csv")  # 确保路径正确
+#读取 tracking.csv
+df = pd.read_csv("documents\\tracking.csv") 
 
 t_array  = df["t"].values
 qx_body  = df["qx"].values
@@ -108,7 +107,7 @@ for t, qx, qy, qz, qw in zip(t_array, qx_body, qy_body, qz_body, qw_body):
     qzd_list.append(qz_d)
     qwd_list.append(qw_d)
 
-# === 可选：保存结果到 CSV，方便画图或后续使用 ===
+# 保存结果到 CSV 文件
 out_df = pd.DataFrame({
     "t": t_array,
     "qx": qxd_list,
@@ -118,7 +117,7 @@ out_df = pd.DataFrame({
 })
 out_df.to_csv("end_effector_quaternion.csv", index=False)
 
-# === 绘制四元数变化曲线 ===
+# 绘制四元数变化曲线
 plt.figure(figsize=(10, 6))
 plt.plot(t_array, qxd_list, label='qx')
 plt.plot(t_array, qyd_list, label='qy')
