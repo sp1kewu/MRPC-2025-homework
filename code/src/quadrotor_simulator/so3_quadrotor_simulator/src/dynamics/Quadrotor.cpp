@@ -200,7 +200,7 @@ void Quadrotor::operator()(const Quadrotor::InternalState& x,
   //请在这里补充完四旋翼飞机的动力学模型，提示：v_dot应该与重力，总推力，外力和空气阻力相关
   // v_dot = //?????
   // 线速度导数：重力 + 推力 + 外力 + 空气阻力
-  Eigen::Vector3d gravity(0.0, 0.0, -g_);  // z 轴向上，重力向下
+  Eigen::Vector3d gravity(0.0, 0.0, -g_);  // z 轴向上，重力向下.
   Eigen::Vector3d thrust_force = R * Eigen::Vector3d(0.0, 0.0, thrust);
   Eigen::Vector3d drag_force   = -resistance * vnorm;     // 阻力方向与速度相反
 
