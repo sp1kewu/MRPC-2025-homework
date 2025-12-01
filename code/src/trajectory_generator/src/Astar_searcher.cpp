@@ -255,30 +255,64 @@ bool Astarpath::AstarSearch(Vector3d start_pt, Vector3d end_pt) {
   while (!Openset.empty()) {
     //1.弹出g+h最小的节点
     //????
+    auto current_it = Openset.begin();
+    currentPtr = current_it->second;
+    Openset.erase(current_it);
+    // 标记为 closed set
+    currentPtr->id = -1;
     //2.判断是否是终点
     //????
+    if (currentPtr->index(0) == goalIdx(0) &&
+        currentPtr->index(1) == goalIdx(1) &&
+        currentPtr->index(2) == goalIdx(2)) {
+      // 找到终点，记录终止节点并返回 true
+      terminatePtr = currentPtr;
+
+      ros::Time time_2 = ros::Time::now();
+      if ((time_2 - time_1).toSec() > 0.1)
+        ROS_WARN("Time consume in Astar path finding is %f",
+                 (time_2 - time_1).toSec());
+      return true;
+    }
     //3.拓展当前节点
     //????
+    AstarGetSucc(currentPtr, neighborPtrSets, edgeCostSets);
+
     for(unsigned int i=0;i<neighborPtrSets.size();i++)
     {
       
-      if(neighborPtrSets[i]->id==-1)
+      if(neighborPtrSets[i]->id==-1)//在closed set中
       {
          continue;
       }
       tentative_g_score=currentPtr->g_score+edgeCostSets[i];
       neighborPtr=neighborPtrSets[i];
-      if(isOccupied(neighborPtr->index))
+      if(isOccupied(neighborPtr->index))//障碍物跳过
       continue;
       if(neighborPtr->id==0)
       {
         //4.填写信息，完成更新
         //???
+        neighborPtr->id      = 1;                       // 标记为 open set
+        neighborPtr->Father  = currentPtr;              // 记录父节点
+        neighborPtr->g_score = tentative_g_score;
+        neighborPtr->f_score = tentative_g_score + getHeu(neighborPtr, endPtr);
+        neighborPtr->coord   = gridIndex2coord(neighborPtr->index);
+
+        Openset.insert(make_pair(neighborPtr->f_score, neighborPtr));
         continue;
       }
       else if(neighborPtr->id==1)
       {
         //???
+      // 已在 open set：如果这条路更短，就更新它
+        if (neighborPtr->g_score > tentative_g_score) {
+          neighborPtr->g_score = tentative_g_score;
+          neighborPtr->Father  = currentPtr;
+          neighborPtr->f_score = tentative_g_score + getHeu(neighborPtr, endPtr);
+          // 重新插入一条记录（保留较小 f 的路径）
+          Openset.insert(make_pair(neighborPtr->f_score, neighborPtr));
+        }
       continue;
       }
     }
