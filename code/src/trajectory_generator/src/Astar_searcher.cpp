@@ -188,9 +188,16 @@ inline void Astarpath::AstarGetSucc(MappingNodePtr currentPtr,
 double Astarpath::getHeu(MappingNodePtr node1, MappingNodePtr node2) {
   
   // 使用数字距离和一种类型的tie_breaker
-  double heu;
-  double tie_breaker;
+  //double heu;
+  //double tie_breaker;
   
+  //return heu;
+  Eigen::Vector3d diff = node1->coord - node2->coord;
+  double dist = diff.norm();          // 欧式距离
+
+  double tie_breaker = 1.0 + 1e-3;    // 很小的权重
+  double heu = tie_breaker * dist;
+
   return heu;
 }
 
