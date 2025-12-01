@@ -342,6 +342,14 @@ terminatePtr=terminatePtr->Father;
    * **/
 
   // ???
+  // 把起点也加入 front_path
+  terminatePtr->coord = gridIndex2coord(terminatePtr->index);
+  front_path.push_back(terminatePtr);
+
+  // 此时 front_path 中的顺序是 [终点, ..., 起点]，需要反转
+  for (int i = static_cast<int>(front_path.size()) - 1; i >= 0; --i) {
+    path.push_back(front_path[i]->coord);
+  }
 
   return path;
 }
