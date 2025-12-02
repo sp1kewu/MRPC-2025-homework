@@ -296,7 +296,7 @@ void issafe(const ros::TimerEvent &e){
       ROS_WARN("now place is in obstacle, the drone has cracked!!!");
       cracked = true;
       if(!dataFiles.is_open()){
-        dataFiles.open("/home/dwl/ta-mobile-robot/code/src/quadrotor_simulator/so3_control/src/issafe.txt", std::ios::out|std::ios::trunc);
+        dataFiles.open("/home/stuwork/MRPC-2025-homework/code/src/quadrotor_simulator/so3_control/src/issafe.txt", std::ios::out|std::ios::trunc);
       }
       dataFiles << 1;
       dataFiles.flush();
