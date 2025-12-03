@@ -14,14 +14,25 @@ def generate_run_id():
     return datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 def read_kx_kv_from_source():
-    """从 so3_control_nodelet.cpp 中解析当前 kx/kv 设置。"""
+    """
+    从 so3_control_nodelet.cpp 第 103、104 行读取 kx/kv。
+    约定这两行始终是：
+      kx_ = Eigen::Vector3d(...);
+      kv_ = Eigen::Vector3d(...);
+    """
     try:
         with open(SO3_CTRL_SRC, "r") as f:
-            content = f.read()
-        kx_match = re.search(r"kx_\\s*=\\s*Eigen::Vector3d\\(([^)]*)\\)", content)
-        kv_match = re.search(r"kv_\\s*=\\s*Eigen::Vector3d\\(([^)]*)\\)", content)
-        kx = [float(x.strip()) for x in kx_match.group(1).split(",")] if kx_match else None
-        kv = [float(x.strip()) for x in kv_match.group(1).split(",")] if kv_match else None
+            lines = f.readlines()
+        # 直接按固定行号提取
+        kx_line = lines[102].strip() if len(lines) > 102 else ""
+        kv_line = lines[103].strip() if len(lines) > 103 else ""
+
+        def parse_vec(line):
+            m = re.search(r"Eigen::Vector3d\\(([^)]*)\\)", line)
+            return [float(x.strip()) for x in m.group(1).split(",")] if m else None
+
+        kx = parse_vec(kx_line)
+        kv = parse_vec(kv_line)
         return kx, kv
     except Exception:
         return None, None
