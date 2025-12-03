@@ -85,3 +85,4 @@ if __name__ == "__main__":
             f.write(f"{rmse} {total_time} {total_length} {additional_score} {overall_score}")
     except ValueError as e:
         print(f"发生错误: {e}")
+        
