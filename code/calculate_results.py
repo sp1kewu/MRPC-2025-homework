@@ -1,6 +1,42 @@
 
 import numpy as np
 import os
+import re
+import datetime
+
+# 追加记录功能的辅助常量与函数
+BASE_PATH = "/home/stuwork/MRPC-2025-homework"
+SO3_CTRL_SRC = f"{BASE_PATH}/code/src/quadrotor_simulator/so3_control/src/so3_control_nodelet.cpp"
+RUN_HISTORY_PATH = f"{BASE_PATH}/solutions/run_history.txt"
+
+def generate_run_id():
+    """生成唯一运行 ID（时间戳）。"""
+    return datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+def read_kx_kv_from_source():
+    """从 so3_control_nodelet.cpp 中解析当前 kx/kv 设置。"""
+    try:
+        with open(SO3_CTRL_SRC, "r") as f:
+            content = f.read()
+        kx_match = re.search(r"kx_\\s*=\\s*Eigen::Vector3d\\(([^)]*)\\)", content)
+        kv_match = re.search(r"kv_\\s*=\\s*Eigen::Vector3d\\(([^)]*)\\)", content)
+        kx = [float(x.strip()) for x in kx_match.group(1).split(",")] if kx_match else None
+        kv = [float(x.strip()) for x in kv_match.group(1).split(",")] if kv_match else None
+        return kx, kv
+    except Exception:
+        return None, None
+
+def append_run_history(run_id, kx, kv, rmse, total_time, total_length, additional_score, overall_score):
+    """将本次运行结果追加到历史记录文件。"""
+    kx_str = ", ".join(f"{v:.4f}" for v in kx) if kx else "N/A"
+    kv_str = ", ".join(f"{v:.4f}" for v in kv) if kv else "N/A"
+    line = (
+        f"ID={run_id} "
+        f"kx=[{kx_str}] kv=[{kv_str}] "
+        f"{rmse} {total_time} {total_length} {additional_score} {overall_score}\n"
+    )
+    with open(RUN_HISTORY_PATH, "a") as f:
+        f.write(line)
 def calculate_rmse_and_more():
     des_pos_data = []
     pos_data = []
@@ -83,6 +119,11 @@ if __name__ == "__main__":
         result_file_path = "/home/stuwork/MRPC-2025-homework/solutions/result.txt"
         with open(result_file_path, "w") as f:
             f.write(f"{rmse} {total_time} {total_length} {additional_score} {overall_score}")
+
+        # 新增：记录运行历史
+        run_id = generate_run_id()
+        kx, kv = read_kx_kv_from_source()
+        append_run_history(run_id, kx, kv, rmse, total_time, total_length, additional_score, overall_score)
     except ValueError as e:
         print(f"发生错误: {e}")
         
