@@ -3,11 +3,12 @@ import numpy as np
 import os
 import re
 import datetime
+from pathlib import Path
 
 # 追加记录功能的辅助常量与函数
-BASE_PATH = "/home/stuwork/MRPC-2025-homework"
-SO3_CTRL_SRC = f"{BASE_PATH}/code/src/quadrotor_simulator/so3_control/src/so3_control_nodelet.cpp"
-RUN_HISTORY_PATH = f"{BASE_PATH}/solutions/run_history.txt"
+REPO_ROOT = Path(__file__).resolve().parents[1]  # MRPC-2025-homework 目录
+SO3_CTRL_SRC = REPO_ROOT / "code" / "src" / "quadrotor_simulator" / "so3_control" / "src" / "so3_control_nodelet.cpp"
+RUN_HISTORY_PATH = REPO_ROOT / "solutions" / "run_history.txt"
 
 def generate_run_id():
     """生成唯一运行 ID（时间戳）。"""
@@ -28,7 +29,7 @@ def read_kx_kv_from_source():
         kv_line = lines[103].strip() if len(lines) > 103 else ""
 
         def parse_vec(line):
-            m = re.search(r"Eigen::Vector3d\\(([^)]*)\\)", line)
+            m = re.search(r"Eigen::Vector3d\(([^)]*)\)", line)
             return [float(x.strip()) for x in m.group(1).split(",")] if m else None
 
         kx = parse_vec(kx_line)
